@@ -83,15 +83,6 @@ This command will create a VectorDB in `data/chroma` directory.
 
 
 
-## Project Schema
-<div align="center">
-  <img src="images/project_schema.png" alt="Schema">
-</div>
-
-## Chatbot User Interface
-<div align="center">
-  <img src="images/UI.png" alt="ChatBot UI">
-</div>
 
 ## Databases:
 - Diabetes dataset: [Link](https://www.kaggle.com/datasets/akshaydattatraykhare/diabetes-dataset?resource=download&select=diabetes.csv)

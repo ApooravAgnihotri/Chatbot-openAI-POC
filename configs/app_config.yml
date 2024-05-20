@@ -6,12 +6,11 @@ directories:
   persist_directory: data/chroma
 
 llm_config:
-    agent_llm_system_role: "Given the following user question, corresponding SQL query, and SQL result, answer the user question.\n
-    Question: {question}\n
-    SQL Query: {query}\n
-    SQL Result: {result}\n
-    Answer: 
-    "
+    agent_llm_system_role: "Given the following user question, corresponding SQL query, and SQL result, answer the user question."
+    Question: {question}
+    SQL Query: {query}
+    SQL Result: {result}
+    Answer:
     rag_llm_system_role: "You will recieve the user's question along with the search results of that question over a database. Give the user the proper answer."
     engine: "gpt-35-turbo"
     temperature: 0.0

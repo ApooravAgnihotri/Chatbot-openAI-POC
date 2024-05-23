@@ -5,7 +5,7 @@ import yaml
 from pyprojroot import here
 import shutil
 from openai import AzureOpenAI
-from langchain.chat_models import AzureChatOpenAI
+from langchain_community.chat_models import AzureChatOpenAI
 import chromadb
 
 print("Environment variables are loaded:", load_dotenv())

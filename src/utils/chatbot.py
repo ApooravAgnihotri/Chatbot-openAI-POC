@@ -1,6 +1,6 @@
 import os
 from typing import List, Tuple
-from utils.load_config import LoadConfig
+#from utils.load_config import LoadConfig
 from langchain_community.utilities import SQLDatabase
 from langchain.chains import create_sql_query_chain
 from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
@@ -11,6 +11,11 @@ from operator import itemgetter
 from sqlalchemy import create_engine
 from langchain_community.agent_toolkits import create_sql_agent
 import langchain
+from langchain_community.agent_toolkits import create_sql_agent
+from langchain_community.agent_toolkits import create_sql_agent, SQLDatabaseToolkit
+from langchain_community.utilities import SQLDatabase
+from langchain.llms import OpenAI
+from langchain.agents import AgentType
 langchain.debug = True
 
 APPCFG = LoadConfig()
@@ -87,8 +92,7 @@ class ChatBot:
                         return "", chatbot, None
                 print(db.dialect)
                 print(db.get_usable_table_names())
-                agent_executor = create_sql_agent(
-                    APPCFG.langchain_llm, db=db, agent_type="openai-tools", verbose=True)
+                agent_executor =create_sql_agent(llm=llm_response,toolkit=SQLDatabaseToolkit(db=db, llm=llm_response),verbose=True,agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
                 response = agent_executor.invoke({"input": message})
                 response = response["output"]
 

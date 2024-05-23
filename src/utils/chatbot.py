@@ -1,6 +1,6 @@
 import os
 from typing import List, Tuple
-from utils.load_config import LoadConfig
+from load_config import LoadConfig
 from langchain_community.utilities import SQLDatabase
 from langchain.chains import create_sql_query_chain
 from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool

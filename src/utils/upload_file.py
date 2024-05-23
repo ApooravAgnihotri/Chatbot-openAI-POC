@@ -1,6 +1,6 @@
 import os
 from typing import List, Tuple
-from utils.load_config import LoadConfig
+from load_config import LoadConfig
 from sqlalchemy import create_engine, inspect
 import pandas as pd
 APPCFG = LoadConfig()

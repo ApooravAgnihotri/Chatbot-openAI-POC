@@ -53,6 +53,15 @@ with gr.Blocks() as demo:
             ##############
             file_msg = upload_btn.upload(fn=UploadFile.run_pipeline, inputs=[
                 upload_btn, chatbot, app_functionality], outputs=[input_txt, chatbot], queue=False)
+
+            txt_msg = input_txt.submit(fn=ChatBot.respond,
+                                       inputs=[chatbot, input_txt,
+                                               chat_type, app_functionality],
+                                       outputs=[input_txt,
+                                                chatbot],
+                                       queue=False).then(lambda: gr.Textbox(interactive=True),
+                                                         None, [input_txt], queue=False)
+
             txt_msg = text_submit_btn.click(fn=ChatBot.respond,
                                             inputs=[chatbot, input_txt,
                                                     chat_type, app_functionality],

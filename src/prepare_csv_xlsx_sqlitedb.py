@@ -3,8 +3,8 @@ from langchain_community.agent_toolkits import create_sql_agent, SQLDatabaseTool
 from langchain_community.utilities import SQLDatabase
 from langchain.llms import OpenAI
 from langchain.agents import AgentType
-from prepare_sqlitedb_from_csv_xlsx import PrepareSQLFromTabularData
-from load_config import LoadConfig
+from utils.prepare_sqlitedb_from_csv_xlsx import PrepareSQLFromTabularData
+from utils.load_config import LoadConfig
 
 APPCFG = LoadConfig()
 

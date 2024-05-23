@@ -1,7 +1,7 @@
 import gradio as gr
-from upload_file import UploadFile
-from chatbot import ChatBot
-from ui_settings import UISettings
+from utils.upload_file import UploadFile
+from utils.chatbot import ChatBot
+from utils.ui_settings import UISettings
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_community.agent_toolkits import create_sql_agent, SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase

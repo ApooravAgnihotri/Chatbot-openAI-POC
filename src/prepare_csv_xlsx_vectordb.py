@@ -1,4 +1,4 @@
-from prepare_vectordb_from_csv_xlsx import PrepareVectorDBFromTabularData
+from utils.prepare_vectordb_from_csv_xlsx import PrepareVectorDBFromTabularData
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_community.agent_toolkits import create_sql_agent, SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase

@@ -1,4 +1,5 @@
 import os
+import sys
 from typing import List, Tuple
 from load_config import LoadConfig
 from langchain_community.utilities import SQLDatabase
@@ -10,16 +11,22 @@ from langchain_core.runnables import RunnablePassthrough
 from operator import itemgetter
 from sqlalchemy import create_engine
 from langchain_community.agent_toolkits import create_sql_agent
-import langchain
-from langchain_community.agent_toolkits import create_sql_agent
-from langchain_community.agent_toolkits import create_sql_agent
 from langchain_community.agent_toolkits import SQLDatabaseToolkit
-from langchain_community.utilities import SQLDatabase
 from langchain.agents import AgentType
+import langchain
+
+# Enable debugging
 langchain.debug = True
 
-APPCFG = LoadConfig()
+# Adding the parent directory to the system path to locate the utils package
+current_dir = os.path.dirname(__file__)
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
+from load_config import LoadConfig
+
+# Load application configuration
+APPCFG = LoadConfig()
 
 class ChatBot:
     """
@@ -27,6 +34,7 @@ class ChatBot:
     It can interact with SQL databases, leverage language chain agents for Q&A,
     and use embeddings for Retrieval-Augmented Generation (RAG) with ChromaDB.
     """
+
     @staticmethod
     def respond(chatbot: List, message: str, chat_type: str, app_functionality: str) -> Tuple:
         """
@@ -40,22 +48,15 @@ class ChatBot:
 
         Returns:
             Tuple[str, List, Optional[Any]]: A tuple containing an empty string, the updated chatbot conversation list,
-                                             and an optional 'None' value. The empty string and 'None' are placeholder
-                                             values to match the required return type and may be updated for further functionality.
-                                             Currently, the function primarily updates the chatbot conversation list.
+                                             and an optional 'None' value.
         """
         if app_functionality == "Chat":
-            # If we want to use langchain agents for Q&A with our SQL DBs that was created from .sql files.
             if chat_type == "Q&A with stored SQL-DB":
-                # directories
                 if os.path.exists(APPCFG.sqldb_directory):
-                    db = SQLDatabase.from_uri(
-                        f"sqlite:///{APPCFG.sqldb_directory}")
+                    db = SQLDatabase.from_uri(f"sqlite:///{APPCFG.sqldb_directory}")
                     execute_query = QuerySQLDataBaseTool(db=db)
-                    write_query = create_sql_query_chain(
-                        APPCFG.langchain_llm, db)
-                    answer_prompt = PromptTemplate.from_template(
-                        APPCFG.agent_llm_system_role)
+                    write_query = create_sql_query_chain(APPCFG.langchain_llm, db)
+                    answer_prompt = PromptTemplate.from_template(APPCFG.agent_llm_system_role)
                     answer = answer_prompt | APPCFG.langchain_llm | StrOutputParser()
                     chain = (
                         RunnablePassthrough.assign(query=write_query).assign(
@@ -64,37 +65,33 @@ class ChatBot:
                         | answer
                     )
                     response = chain.invoke({"question": message})
-
                 else:
-                    chatbot.append(
-                        (message, f"SQL DB does not exist. Please first create the 'sqldb.db'."))
+                    chatbot.append((message, "SQL DB does not exist. Please first create the 'sqldb.db'."))
                     return "", chatbot, None
-            # If we want to use langchain agents for Q&A with our SQL DBs that were created from CSV/XLSX files.
-            elif chat_type == "Q&A with Uploaded CSV/XLSX SQL-DB" or chat_type == "Q&A with stored CSV/XLSX SQL-DB":
+
+            elif chat_type in ["Q&A with Uploaded CSV/XLSX SQL-DB", "Q&A with stored CSV/XLSX SQL-DB"]:
                 if chat_type == "Q&A with Uploaded CSV/XLSX SQL-DB":
                     if os.path.exists(APPCFG.uploaded_files_sqldb_directory):
-                        engine = create_engine(
-                            f"sqlite:///{APPCFG.uploaded_files_sqldb_directory}")
-                        db = SQLDatabase(engine=engine)
-                        print(db.dialect)
+                        engine = create_engine(f"sqlite:///{APPCFG.uploaded_files_sqldb_directory}")
                     else:
-                        chatbot.append(
-                            (message, f"SQL DB from the uploaded csv/xlsx files does not exist. Please first upload the csv files from the chatbot."))
+                        chatbot.append((message, "SQL DB from the uploaded csv/xlsx files does not exist. Please first upload the csv files from the chatbot."))
                         return "", chatbot, None
+
                 elif chat_type == "Q&A with stored CSV/XLSX SQL-DB":
                     if os.path.exists(APPCFG.stored_csv_xlsx_sqldb_directory):
-                        engine = create_engine(
-                            f"sqlite:///{APPCFG.stored_csv_xlsx_sqldb_directory}")
-                        db = SQLDatabase(engine=engine)
+                        engine = create_engine(f"sqlite:///{APPCFG.stored_csv_xlsx_sqldb_directory}")
                     else:
-                        chatbot.append(
-                            (message, f"SQL DB from the stored csv/xlsx files does not exist. Please first execute `src/prepare_csv_xlsx_sqlitedb.py` module."))
+                        chatbot.append((message, "SQL DB from the stored csv/xlsx files does not exist. Please first execute `src/prepare_csv_xlsx_sqlitedb.py` module."))
                         return "", chatbot, None
-                print(db.dialect)
-                print(db.get_usable_table_names())
-                agent_executor =create_sql_agent(llm=llm,toolkit=SQLDatabaseToolkit(db=db, llm=llm),verbose=True,agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
-                response = agent_executor.invoke({"input": message})
-                response = response["output"]
+
+                db = SQLDatabase(engine=engine)
+                agent_executor = create_sql_agent(
+                    llm=APPCFG.langchain_llm,
+                    toolkit=SQLDatabaseToolkit(db=db, llm=APPCFG.langchain_llm),
+                    verbose=True,
+                    agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION
+                )
+                response = agent_executor.invoke({"input": message})["output"]
 
             elif chat_type == "RAG with stored CSV/XLSX ChromaDB":
                 response = APPCFG.azure_openai_client.embeddings.create(
@@ -102,18 +99,12 @@ class ChatBot:
                     model=APPCFG.embedding_model_name
                 )
                 query_embeddings = response.data[0].embedding
-                vectordb = APPCFG.chroma_client.get_collection(
-                    name=APPCFG.collection_name)
-                results = vectordb.query(
-                    query_embeddings=query_embeddings,
-                    n_results=APPCFG.top_k
-                )
+                vectordb = APPCFG.chroma_client.get_collection(name=APPCFG.collection_name)
+                results = vectordb.query(query_embeddings=query_embeddings, n_results=APPCFG.top_k)
                 prompt = f"User's question: {message} \n\n Search results:\n {results}"
 
                 messages = [
-                    {"role": "system", "content": str(
-                        APPCFG.rag_llm_system_role
-                    )},
+                    {"role": "system", "content": str(APPCFG.rag_llm_system_role)},
                     {"role": "user", "content": prompt}
                 ]
                 llm_response = APPCFG.azure_openai_client.chat.completions.create(
@@ -122,9 +113,7 @@ class ChatBot:
                 )
                 response = llm_response.choices[0].message.content
 
-            # Get the `response` variable from any of the selected scenarios and pass it to the user.
-            chatbot.append(
-                (message, response))
+            chatbot.append((message, response))
             return "", chatbot
         else:
             pass

@@ -1,4 +1,4 @@
-from utils.prepare_vectordb_from_csv_xlsx import PrepareVectorDBFromTabularData
+from prepare_vectordb_from_csv_xlsx import PrepareVectorDBFromTabularData
 
 if __name__=="__main__":
     from pyprojroot import here

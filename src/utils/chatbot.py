@@ -1,6 +1,8 @@
 import os
 from typing import List, Tuple
 from load_config import LoadConfig
+from langchain_openai import AzureChatOpenAI
+from langchain_community.llms import OpenAI
 from langchain_community.utilities import SQLDatabase
 from langchain.chains import create_sql_query_chain
 from langchain_community.tools.sql_database.tool import QuerySQLDataBaseTool
@@ -14,7 +16,6 @@ import langchain
 from langchain_community.agent_toolkits import create_sql_agent
 from langchain_community.agent_toolkits import create_sql_agent, SQLDatabaseToolkit
 from langchain_community.utilities import SQLDatabase
-from langchain.llms import OpenAI
 from langchain.agents import AgentType
 langchain.debug = True
 

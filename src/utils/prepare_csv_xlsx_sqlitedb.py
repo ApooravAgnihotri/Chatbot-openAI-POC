@@ -1,5 +1,5 @@
-from utils.prepare_sqlitedb_from_csv_xlsx import PrepareSQLFromTabularData
-from utils.load_config import LoadConfig
+from prepare_sqlitedb_from_csv_xlsx import PrepareSQLFromTabularData
+from load_config import LoadConfig
 
 APPCFG = LoadConfig()
 

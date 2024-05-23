@@ -1,7 +1,7 @@
 import gradio as gr
-from utils.upload_file import UploadFile
-from utils.chatbot import ChatBot
-from utils.ui_settings import UISettings
+from upload_file import UploadFile
+from chatbot import ChatBot
+from ui_settings import UISettings
 
 
 with gr.Blocks() as demo:
